@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Practice new blog post - Nate Thomas&#39;s Github Site</title>
+<meta property="og:title" content="Practice new blog post - Nate Thomas&#39;s Github Site">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/natethomas10/">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/natethomas01">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">2 min read</span>
+    
+
+    <h1 class="article-title">Practice new blog post</h1>
+
+    
+    <span class="article-date">2021-03-28</span>
+    
+
+    <div class="article-content">
+      
+<script src="/2021/03/28/practice-new-blog-post/index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>I am going to be finding the worst college football games from last season in terms of score differential and put them into a plot with all the games.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.0.5     ✓ dplyr   1.0.3
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<pre class="r"><code>football &lt;- read_csv(&quot;badfootballlogs19.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_double(),
+##   Date = col_character(),
+##   HomeAway = col_character(),
+##   Opponent = col_character(),
+##   Result = col_character(),
+##   TeamFull = col_character(),
+##   TeamURL = col_character(),
+##   Team = col_character(),
+##   Conference = col_character()
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<p>After opening my libraries and csv file, I will be making new columns for the outcome of the game, the team score and opponent score for the game.</p>
+<pre class="r"><code>logs &lt;- football %&gt;%
+ separate(Result, into = c(&quot;Outcome&quot;, &quot;Score&quot;), sep=&quot;\\(&quot;) %&gt;%
+ mutate(Score = gsub(&quot;)&quot;, &quot;&quot;, Score)) %&gt;%
+ separate(Score, into = c(&quot;TeamScore&quot;, &quot;OpponentScore&quot;), sep = &quot;\\-&quot;)</code></pre>
+<p>The first step is finding the score differential in all of the games before filtering out the worst of the worst.</p>
+<pre class="r"><code>scoredifference &lt;- logs %&gt;% 
+  mutate(Differential = as.numeric(TeamScore) - as.numeric(OpponentScore))</code></pre>
+<pre class="r"><code>worstgames &lt;- scoredifference %&gt;% filter(Differential &gt; 65)</code></pre>
+<p>Now, I put them all into the plot, with the games of a margin of 65+ in red and circled.</p>
+<pre class="r"><code>ggplot() + 
+  geom_point(
+    data=scoredifference, 
+    aes(x=TeamScore, y=OpponentScore), 
+    color=&quot;grey&quot;) + 
+  geom_point(
+    data=worstgames, 
+    aes(x=TeamScore, y=OpponentScore), 
+    color=&quot;red&quot;) +
+  geom_encircle(data=worstgames, aes(x=TeamScore, y=OpponentScore), s_shape=0, expand=-.05, colour=&quot;red&quot;) +
+  scale_size(range = c(2, 6)) +
+  labs(title=&quot;The Worst Games of 2019&quot;, subtitle=&quot;These were the absolutely terrible games of the college football season in terms of score differential.&quot;, caption=&quot;Source: Sports Reference | By Nate Thomas&quot;)  + theme_minimal()</code></pre>
+<p><img src="/2021/03/28/practice-new-blog-post/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+
