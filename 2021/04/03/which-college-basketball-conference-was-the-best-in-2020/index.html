@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>Which college basketball conference was the best in 2020? - Nate Thomas&#39;s Github Site</title>
+<meta property="og:title" content="Which college basketball conference was the best in 2020? - Nate Thomas&#39;s Github Site">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/natethomas10/">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/natethomas01">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">11 min read</span>
+    
+
+    <h1 class="article-title">Which college basketball conference was the best in 2020?</h1>
+
+    
+    <span class="article-date">2021-04-03</span>
+    
+
+    <div class="article-content">
+      
+<script src="/2021/04/03/which-college-basketball-conference-was-the-best-in-2020/index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>With no NCAA Tournament in 2020, there was really no way to compare conferences against each other for the consolation prize of “Best Conference in the Country”. For example, in 2021, everyone crowned the Big Ten as the best conference in the regular season. That was before a lackluster Tournament performance led people to believe that maybe they were not the best.</p>
+<p>So today, I will be using data to formulate which conference was the best during the 2019-20 season. First up, I am opening up all the libraries I am using and then the two csv files of data. The first csv is stats for each conference last season and the second is every college basketball game in 2019-20.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.0.5     ✓ dplyr   1.0.3
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggalt)</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;ggalt&#39;:
+##   method                  from   
+##   grid.draw.absoluteGrob  ggplot2
+##   grobHeight.absoluteGrob ggplot2
+##   grobWidth.absoluteGrob  ggplot2
+##   grobX.absoluteGrob      ggplot2
+##   grobY.absoluteGrob      ggplot2</code></pre>
+<pre class="r"><code>library(ggrepel)
+library(gt)</code></pre>
+<pre class="r"><code>conferencestats &lt;- read_csv(&quot;conference20.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   Conference = col_character(),
+##   Schools = col_double(),
+##   W = col_double(),
+##   L = col_double(),
+##   `W-L%` = col_double(),
+##   SRS = col_double(),
+##   SOS = col_double(),
+##   AP = col_double()
+## )</code></pre>
+<pre class="r"><code>basketballlogs &lt;- read_csv(&quot;logs20.csv&quot;)</code></pre>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   .default = col_double(),
+##   Date = col_date(format = &quot;&quot;),
+##   HomeAway = col_character(),
+##   Opponent = col_character(),
+##   W_L = col_character(),
+##   Blank = col_logical(),
+##   Team = col_character(),
+##   Conference = col_character(),
+##   season = col_character()
+## )
+## ℹ Use `spec()` for the full column specifications.</code></pre>
+<p>The first thing we are going to be looking it at is the average wins by each conference. I opened up the conference data and renamed my columns to have it make a little more sense. Then, I found the average number of wins for each conference and put the top 10 in descending order of average wins. I used those top 10 schools, in a new data frame, to make a GT table to show who were some of the best conferences. Other columns included in the table include the total number of schools, number of teams the conference had ranked during the year and total wins the conference had.</p>
+<pre class="r"><code>averageconferencewins &lt;- conferencestats %&gt;%
+  group_by(Conference) %&gt;%
+  summarise(
+    `Total Schools` = sum(Schools),
+    `Teams Ranked` = sum(AP),
+    `Total Wins` = sum(W)
+    ) %&gt;%
+  mutate(
+    `Average Wins` = round(`Total Wins` / `Total Schools`, digits = 2)) %&gt;%
+  arrange(desc(`Average Wins`)) %&gt;%
+  ungroup() %&gt;%
+  top_n(10)</code></pre>
+<pre><code>## Selecting by Average Wins</code></pre>
+<pre class="r"><code>averageconferencewins %&gt;%
+  gt() %&gt;% 
+  cols_label(
+    `Total Schools` = &quot;Schools&quot;,
+    `Teams Ranked` = &quot;Teams Ranked&quot;,
+    `Total Wins` = &quot;Total Wins&quot;,
+    `Average Wins` = &quot;Average Wins&quot;
+  ) %&gt;%
+  tab_header(
+    title = &quot;The Winningiest Conferences?&quot;,
+    subtitle = &quot;The Big East and WCC the only conferences that averaged 19 wins.&quot;
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;title&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;subtitle&quot;)
+  ) %&gt;%
+  tab_source_note(
+    source_note = &quot;By Nate Thomas&quot;
+  ) %&gt;%
+  tab_source_note(
+    source_note = md(&quot;Source: Sports Reference&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;),
+    locations = cells_body(
+      columns = vars(Conference)
+  )) %&gt;% 
+  opt_row_striping() %&gt;% 
+  opt_table_lines(&quot;none&quot;) %&gt;% 
+  tab_style(
+    style = cell_borders(sides = c(&quot;top&quot;, &quot;bottom&quot;), 
+                         color = &quot;grey&quot;, weight = px(1)),
+    locations = cells_column_labels(everything())) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;blue&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Conference == &quot;Big East&quot;)
+  ) %&gt;%
+    tab_style(
+    style = list(
+      cell_fill(color = &quot;red&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Conference == &quot;WCC&quot;)
+  )</code></pre>
+<pre><code>## Warning: The `.dots` argument of `group_by()` is deprecated as of dplyr 1.0.0.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#spjefqihig .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: none;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#spjefqihig .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#spjefqihig .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#spjefqihig .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#spjefqihig .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spjefqihig .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#spjefqihig .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#spjefqihig .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#spjefqihig .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#spjefqihig .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#spjefqihig .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#spjefqihig .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#spjefqihig .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#spjefqihig .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#spjefqihig .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#spjefqihig .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#spjefqihig .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#spjefqihig .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spjefqihig .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#spjefqihig .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#spjefqihig .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#spjefqihig .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#spjefqihig .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#spjefqihig .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#spjefqihig .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#spjefqihig .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#spjefqihig .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#spjefqihig .gt_left {
+  text-align: left;
+}
+
+#spjefqihig .gt_center {
+  text-align: center;
+}
+
+#spjefqihig .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#spjefqihig .gt_font_normal {
+  font-weight: normal;
+}
+
+#spjefqihig .gt_font_bold {
+  font-weight: bold;
+}
+
+#spjefqihig .gt_font_italic {
+  font-style: italic;
+}
+
+#spjefqihig .gt_super {
+  font-size: 65%;
+}
+
+#spjefqihig .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="spjefqihig" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="5" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">The Winningiest Conferences?</th>
+    </tr>
+    <tr>
+      <th colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: black; text-align: left;">The Big East and WCC the only conferences that averaged 19 wins.</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Conference</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Schools</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Teams Ranked</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Total Wins</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Average Wins</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #0000FF;">Big East</td>
+      <td class="gt_row gt_right" style="background-color: #0000FF; color: white;">10</td>
+      <td class="gt_row gt_right" style="background-color: #0000FF; color: white;">4</td>
+      <td class="gt_row gt_right" style="background-color: #0000FF; color: white;">195</td>
+      <td class="gt_row gt_right" style="background-color: #0000FF; color: white;">19.50</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #FF0000;">WCC</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">10</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">2</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">191</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #FF0000; color: white;">19.10</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Pac-12</td>
+      <td class="gt_row gt_right">12</td>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">226</td>
+      <td class="gt_row gt_right">18.83</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Big 12</td>
+      <td class="gt_row gt_right gt_striped">10</td>
+      <td class="gt_row gt_right gt_striped">3</td>
+      <td class="gt_row gt_right gt_striped">188</td>
+      <td class="gt_row gt_right gt_striped">18.80</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">ACC</td>
+      <td class="gt_row gt_right">15</td>
+      <td class="gt_row gt_right">4</td>
+      <td class="gt_row gt_right">276</td>
+      <td class="gt_row gt_right">18.40</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Big Ten</td>
+      <td class="gt_row gt_right gt_striped">14</td>
+      <td class="gt_row gt_right gt_striped">6</td>
+      <td class="gt_row gt_right gt_striped">255</td>
+      <td class="gt_row gt_right gt_striped">18.21</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">SEC</td>
+      <td class="gt_row gt_right">14</td>
+      <td class="gt_row gt_right">2</td>
+      <td class="gt_row gt_right">254</td>
+      <td class="gt_row gt_right">18.14</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Southern</td>
+      <td class="gt_row gt_right gt_striped">10</td>
+      <td class="gt_row gt_right gt_striped">0</td>
+      <td class="gt_row gt_right gt_striped">178</td>
+      <td class="gt_row gt_right gt_striped">17.80</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">American</td>
+      <td class="gt_row gt_right">12</td>
+      <td class="gt_row gt_right">1</td>
+      <td class="gt_row gt_right">213</td>
+      <td class="gt_row gt_right">17.75</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Missouri Valley</td>
+      <td class="gt_row gt_right gt_striped">10</td>
+      <td class="gt_row gt_right gt_striped">0</td>
+      <td class="gt_row gt_right gt_striped">177</td>
+      <td class="gt_row gt_right gt_striped">17.70</td>
+    </tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5">By Nate Thomas</td>
+    </tr>
+    <tr>
+      <td class="gt_sourcenote" colspan="5">Source: Sports Reference</td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>When looking at the table, obviously the top two stand out as the only conferences at 19 wins. But the “Power 5” Conferences all come up after and the Pac-12 and Big 12 are the first two to pop up. Keep that in mind through the rest of this. We always talk about how highly the ACC and Big Ten are during the regular season, but they fall to 4th and 5th on the table. The SEC serves no surprise with their conference being dominated by Kentucky every year, with maybe one other solid team.</p>
+<p>The next group of data I wanted to look at was how well offenses and defenses performed in each conference. I used all of the games from the 2019-20 season, grouped all of the games by conference and then found the mean points per game and the mean points against per game for each conference. I filtered out the top seven conferences in terms of average wins.</p>
+<pre class="r"><code>conferencepoints &lt;- basketballlogs %&gt;%
+  group_by(Conference) %&gt;%
+  summarise(
+    `Points Scored per Game` = mean(TeamScore), 
+    `Points Against per Game` = mean(OpponentScore)
+  ) %&gt;%
+  filter(Conference == &quot;Big Ten&quot; | Conference == &quot;Big East&quot; | Conference == &quot;Big 12&quot; | Conference == &quot;Pac-12&quot; | Conference == &quot;SEC&quot; | Conference == &quot;ACC&quot; | Conference == &quot;WCC&quot;)</code></pre>
+<p>With the points scored and points against per game found for each of the Power 5 along with the Big East and WCC, I put that all into a dumbbell plot to compare each conference. The green end is the points scored and the other end is the points against.</p>
+<pre class="r"><code>ggplot() + 
+  geom_dumbbell(
+    data = conferencepoints, aes(y = reorder(Conference, `Points Scored per Game`), x = `Points Scored per Game`, xend = `Points Against per Game`), size = 1, color = &quot;grey&quot;, colour_x = &quot;green&quot;, colour_xend = &quot;red&quot;
+    ) + 
+  labs(
+    title = &quot;The Balanced Big East?&quot;, 
+    subtitle = &quot;The Big East strikes great balance in offense ad defense against it&#39;s peers.&quot;, 
+    caption = &quot;Source: Sports Reference | By Nate Thomas&quot;, 
+    y = &quot;Conference&quot;
+    )  + 
+  theme_light () + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9, face = &quot;bold&quot;), 
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    panel.grid.minor = element_blank())</code></pre>
+<p><img src="/2021/04/03/which-college-basketball-conference-was-the-best-in-2020/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>The West Coast Conference, led by Gonzaga and BYU, were the highest scoring conference in the country. Pepperdine and San Francisco are not known to be dominant defensive schools like the aforementioned Bulldogs and Cougars out West. The Big East had three of the most efficient offenses in the country in 2020, with Creighton, Villanova and Seton Hall, but their defense also stands out. Big 12 teams like Baylor and Texas have been defensive minded teams. Overall, I am really impressed by the Big East yet again. They have strikingly good balance between offense and defense.</p>
+<p>Clearly the Big East and WCC stack up pretty well against the rest of the country. I wanted to look at a few more crucial things: win percentage and strength of schedule. Sports Reference also publishes a simple rating for teams and conferences, so I threw that in more good measure as well.</p>
+<pre class="r"><code>conferencestatsclean &lt;- conferencestats %&gt;%
+  group_by(Conference) %&gt;%
+  summarise(
+    `Strength of Schedule` = sum(SOS), 
+    `Simple Rating` = sum(SRS), 
+    `Win Percentage` = sum(`W-L%`)
+  )
+
+bubblepowerconferences &lt;- conferencestatsclean %&gt;% 
+  filter(Conference == &quot;Big Ten&quot; | Conference == &quot;Big East&quot; | Conference == &quot;Big 12&quot; | Conference == &quot;Pac-12&quot; | Conference == &quot;SEC&quot; | Conference == &quot;ACC&quot; | Conference == &quot;WCC&quot;)</code></pre>
+<p>I created a filter for the seven best conferences from the other two factors that I looked at so far. Before that, I cleaned up my original CSV file for much simpler terms for the final bubble chart.</p>
+<pre class="r"><code>ggplot() + 
+  geom_point(data = conferencestatsclean, aes(x = `Simple Rating`, y = `Strength of Schedule`, size = `Win Percentage`),
+  color = &quot;orange&quot;, alpha = .5) +
+  scale_size(range = c(0.5, 7), name = &quot;Win Percentage&quot;) +
+  geom_text_repel(data = bubblepowerconferences, aes(x = `Simple Rating`, y = `Strength of Schedule`, label = Conference), size = 3) +
+  labs(
+    title = &quot;The &#39;Big&#39; Conferences Stand Out&quot;, 
+    subtitle = &quot;The Big Ten, Big 12 and Big East stand out as the top three in the schedules and rating.&quot;, 
+    caption = &quot;Source: Sports Reference | By Nate Thomas&quot;
+    )  + 
+  theme_light () + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9, face = &quot;bold&quot;), 
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    panel.grid.minor = element_blank())</code></pre>
+<p><img src="/2021/04/03/which-college-basketball-conference-was-the-best-in-2020/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>The Big Ten comes out on top of the of the bubble chart because of the strength of schedule and simple rating. The Big East and Big 12 post similar to that of the Big Ten with higher winning percentages. Those three are far and away the best in these metrics. The table and dumbbell charts show that the Pac-12, SEC and ACC are behind as well. The WCC does not matchup at all.</p>
+<p>I think, when looking at the three of these charts, the Big East clearly had the best showing overall in college basketball last season. They had a good blend of offense and defense, while also winning their non-conference games with a very balanced schedule. Regarding the Big Ten, you can see they were vastly overrated with six teams ranked, while posting a lower winning percentage and the second-worst average wins of the power conferences.</p>
+<p>Narrative clearly plays a huge role into how we judge conferences every year. The Big East clearly deserved more recognition than it got.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
