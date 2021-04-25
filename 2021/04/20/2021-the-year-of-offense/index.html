@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.81.0" />
+
+
+<title>2021: The Year Of Offense - Nate Thomas&#39;s Github Site</title>
+<meta property="og:title" content="2021: The Year Of Offense - Nate Thomas&#39;s Github Site">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/natethomas10/">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/natethomas01">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">11 min read</span>
+    
+
+    <h1 class="article-title">2021: The Year Of Offense</h1>
+
+    
+    <span class="article-date">2021-04-20</span>
+    
+
+    <div class="article-content">
+      
+<script src="/2021/04/20/2021-the-year-of-offense/index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>The 2020-21 season has been remembered so far for playing through the pandemic, the highly competitive MVP race and the injuries to the best players around the league. But one thing that has stuck out to me this year, is the offensive production by teams and individual players all season.</p>
+<p>I first heard about how ridiculous the offense was in the first few weeks of the season listening to a few different NBA podcasts. A lot of it was “this is sustainable for the whole season”. The next instance that this season was really this ridiculous was seeing the offensive numbers the Brooklyn Nets were putting up after the James Harden trade and after seeing the Los Angeles Clippers were posting the best three-point percentage of all time.</p>
+<p>So with just a few weeks left in the season, I decided to take a look and see if the offenses sustained themselves the whole season and if this was a historically great offensive year. I took data from Basketball Reference’s Team per 100 possessions statistics since 2010-11 to compare this season against it’s peers.</p>
+<p>First thing I will do is opening the only two libraries I will be using today and my csv file with all of the aforementioned statistics.</p>
+<pre class="r"><code>library(tidyverse)
+library(gt)</code></pre>
+<pre class="r"><code>nba100 &lt;- read_csv(&quot;nbaper100.csv&quot;)</code></pre>
+<p>The first statistic I wanted to look at was offensive rating, or the points scored by a team per 100 possessions. I grouped together the team, their season and their offensive rating and put them in descending order and filtered out everything but the top 11 teams. I put those 11 teams in a GT table sorted by their offensive ratings.</p>
+<p>DISCLAIMER: The 1986-87 Los Angeles Lakers posted an offensive rating of 115.6(!). They were not in my dataset but I knew that they had one of the best all-time, so I included in my subtitle that these were 11 of the top 12.</p>
+<pre class="r"><code>topoffrating &lt;- nba100 %&gt;%
+  group_by(Team, Season) %&gt;%
+  select(Team, Season, PTS) %&gt;%
+  arrange(desc(PTS)) %&gt;%
+  ungroup() %&gt;%
+  top_n(10)</code></pre>
+<pre class="r"><code>topoffrating %&gt;%
+  gt() %&gt;% 
+  cols_label(
+    `Team` = &quot;Team&quot;,
+    `Season` = &quot;Season&quot;,
+    `PTS` = &quot;Offensive Rating&quot;
+  ) %&gt;%
+  tab_header(
+    title = &quot;The Best Offenses in 2021&quot;,
+    subtitle = &quot;Seven of the 12 best offensive ratings of all-time are happening this season.&quot;
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;title&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, align = &quot;left&quot;),
+    locations = cells_title(&quot;subtitle&quot;)
+  ) %&gt;%
+  tab_source_note(
+    source_note = &quot;By Nate Thomas&quot;
+  ) %&gt;%
+  tab_source_note(
+    source_note = md(&quot;Source: Sports Reference&quot;)
+  ) %&gt;% tab_style(
+    style = cell_text(color = &quot;black&quot;, weight = &quot;bold&quot;),
+    locations = cells_body(
+      columns = vars(Team)
+  )) %&gt;% 
+  opt_row_striping() %&gt;% 
+  opt_table_lines(&quot;none&quot;) %&gt;% 
+  tab_style(
+    style = cell_borders(sides = c(&quot;top&quot;, &quot;bottom&quot;), 
+                         color = &quot;grey&quot;, weight = px(1)),
+    locations = cells_column_labels(everything())) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#000000&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Brooklyn Nets&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#C8102E&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Los Angeles Clippers&quot;)) %&gt;% 
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#fec524&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Denver Nuggets&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#002b5c&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Utah Jazz&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#00471b&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Milwaukee Bucks&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#e56020&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Phoenix Suns&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#e03a3e&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Portland Trail Blazers&quot;)) %&gt;%
+  tab_style(
+    style = list(
+      cell_fill(color = &quot;#e03a3e&quot;),
+      cell_text(color = &quot;white&quot;)
+      ),
+    locations = cells_body(
+      rows = Team == &quot;Atlanta Hawks&quot;))</code></pre>
+<pre><code>## Warning: The `.dots` argument of `group_by()` is deprecated as of dplyr 1.0.0.</code></pre>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#jlrlniiqtm .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: none;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#jlrlniiqtm .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#jlrlniiqtm .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#jlrlniiqtm .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#jlrlniiqtm .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#jlrlniiqtm .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#jlrlniiqtm .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#jlrlniiqtm .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#jlrlniiqtm .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#jlrlniiqtm .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#jlrlniiqtm .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#jlrlniiqtm .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#jlrlniiqtm .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#jlrlniiqtm .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jlrlniiqtm .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#jlrlniiqtm .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#jlrlniiqtm .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#jlrlniiqtm .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#jlrlniiqtm .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#jlrlniiqtm .gt_left {
+  text-align: left;
+}
+
+#jlrlniiqtm .gt_center {
+  text-align: center;
+}
+
+#jlrlniiqtm .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#jlrlniiqtm .gt_font_normal {
+  font-weight: normal;
+}
+
+#jlrlniiqtm .gt_font_bold {
+  font-weight: bold;
+}
+
+#jlrlniiqtm .gt_font_italic {
+  font-style: italic;
+}
+
+#jlrlniiqtm .gt_super {
+  font-size: 65%;
+}
+
+#jlrlniiqtm .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="jlrlniiqtm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="3" class="gt_heading gt_title gt_font_normal" style="color: black; text-align: left; font-weight: bold;">The Best Offenses in 2021</th>
+    </tr>
+    <tr>
+      <th colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: black; text-align: left;">Seven of the 12 best offensive ratings of all-time are happening this season.</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Team</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Season</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="border-top-width: 1px; border-top-style: solid; border-top-color: grey; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: grey;">Offensive Rating</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #C8102E;">Los Angeles Clippers</td>
+      <td class="gt_row gt_left" style="background-color: #C8102E; color: white;">2020-21</td>
+      <td class="gt_row gt_right" style="background-color: #C8102E; color: white;">118.4</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #000000;">Brooklyn Nets</td>
+      <td class="gt_row gt_left gt_striped" style="background-color: #000000; color: white;">2020-21</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #000000; color: white;">118.3</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #FEC524;">Denver Nuggets</td>
+      <td class="gt_row gt_left" style="background-color: #FEC524; color: white;">2020-21</td>
+      <td class="gt_row gt_right" style="background-color: #FEC524; color: white;">117.9</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #002B5C;">Utah Jazz</td>
+      <td class="gt_row gt_left gt_striped" style="background-color: #002B5C; color: white;">2020-21</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #002B5C; color: white;">117.8</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Dallas Mavericks</td>
+      <td class="gt_row gt_left">2019-20</td>
+      <td class="gt_row gt_right">116.7</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #00471B;">Milwaukee Bucks</td>
+      <td class="gt_row gt_left gt_striped" style="background-color: #00471B; color: white;">2020-21</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #00471B; color: white;">116.7</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #E56020;">Phoenix Suns</td>
+      <td class="gt_row gt_left" style="background-color: #E56020; color: white;">2020-21</td>
+      <td class="gt_row gt_right" style="background-color: #E56020; color: white;">116.2</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: white; font-weight: bold; background-color: #E03A3E;">Portland Trail Blazers</td>
+      <td class="gt_row gt_left gt_striped" style="background-color: #E03A3E; color: white;">2020-21</td>
+      <td class="gt_row gt_right gt_striped" style="background-color: #E03A3E; color: white;">116.2</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: black; font-weight: bold;">Golden State Warriors</td>
+      <td class="gt_row gt_left">2018-19</td>
+      <td class="gt_row gt_right">115.9</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left gt_striped" style="color: black; font-weight: bold;">Golden State Warriors</td>
+      <td class="gt_row gt_left gt_striped">2016-17</td>
+      <td class="gt_row gt_right gt_striped">115.6</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_left" style="color: white; font-weight: bold; background-color: #E03A3E;">Atlanta Hawks</td>
+      <td class="gt_row gt_left" style="background-color: #E03A3E; color: white;">2020-21</td>
+      <td class="gt_row gt_right" style="background-color: #E03A3E; color: white;">115.6</td>
+    </tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">By Nate Thomas</td>
+    </tr>
+    <tr>
+      <td class="gt_sourcenote" colspan="3">Source: Sports Reference</td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>Seven of the 11 best offensive ratings of the last 11 seasons are from the 2020-21 season. Crazy, right? Teams are scoring at a historically great rate with only a few weeks left in the regular season. Now, you could be thinking “They just take a lot of shots and can’t be that efficient, right?”</p>
+<p>Wrong! The next group of statistics I looked at were the shooting splits for each team, also known as their shooting percentages. I put together a data set with just everyone’s shooting percentages from inside and outside the arc and from the free-throw line. I made a separate data set to find the average splits from two-point range and three-point range to help me on the next chart. Then I made the final data set just teams from this season to see where they stand out on this chart.</p>
+<pre class="r"><code>shooting &lt;- nba100 %&gt;%
+  group_by(Season, Team) %&gt;%
+  summarise(
+    `2P%` = sum(`2P%`), 
+    `3P%` = sum(`3P%`),
+    `FT%` = sum(`FT%`))
+
+avgshooting &lt;- shooting %&gt;%
+  ungroup() %&gt;%
+  summarise(
+    `Avg2P%` = mean(`2P%`), 
+    `Avg3P%` = mean(`3P%`))
+
+shooting2021 &lt;- shooting %&gt;%
+  filter(Season == &quot;2020-21&quot;)</code></pre>
+<p>Using those data sets above, I made a bubble chart with the intercept lines. The x-axis is two-pointers, the y-axis three-pointers and the bubble being free-throw percentage. The intercept lines represent the average shooting percentages.</p>
+<pre class="r"><code>ggplot() +
+  geom_point(data = shooting, aes(x = `2P%`, y = `3P%`, size = `FT%`), color = &quot;grey&quot;, alpha = .25) +
+  geom_point(data = shooting2021, aes(x = `2P%`, y = `3P%`, size = `FT%`), color = &quot;#EF3B24&quot;, alpha = .6) +
+  scale_size(range = c(1, 7), name = &quot;Free-Throw Percentage&quot;) +
+  geom_hline(yintercept =   0.3563727, color = &quot;blue&quot;) +
+  geom_vline(xintercept = 0.5002273, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Best Shooting Teams This Decade&quot;, 
+    subtitle = &quot;Two-thirds of the league is shooting above the league average since 2010&quot;, 
+    caption = &quot;Source: Sports Reference | By Nate Thomas&quot;, 
+    x = &quot;Two-Point Percentage&quot; , y = &quot;Three-Point Percentage&quot;
+    )  + 
+  theme_light () + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9, face = &quot;bold&quot;), 
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    panel.grid.minor = element_blank())</code></pre>
+<p><img src="/2021/04/20/2021-the-year-of-offense/index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Twenty of the thirty NBA teams are currently shooting at rates above the league average since the 2010-11 season and it doesn’t look to me if the free-throw percentages are significantly large. But with how they are shooting, we can see a little bit why teams are scoring so much. This shooing is very fun.</p>
+<p>The last thing I wanted to look at were how well teams passed the ball versus how well they turned it over. I grouped together all the teams by season one last time and made a data set with just their assists and turnovers per 100 possessions. I then made a data set to find the averages of the assists and turnovers from the the past 11 seasons and filtered out just the teams from this season.</p>
+<pre class="r"><code>asttov &lt;- nba100 %&gt;%
+  group_by(Team, Season) %&gt;%
+  summarise(
+    AST = sum(AST),
+    TOV = sum(TOV))
+
+avgasttov &lt;- asttov %&gt;%
+  ungroup() %&gt;%
+  summarise(
+    AvgAST = mean(AST), 
+    AvgTOV = mean(TOV))
+
+asttov2021 &lt;- asttov %&gt;%
+  filter(Season == &quot;2020-21&quot;)</code></pre>
+<p>The last chart I made was putting together a scatterplot with assists on the x-axis and turnovers on the y-axis. I made the leage averages of assists and turnovers a separate line to separate the quadrants. All of the 2021 teams are in green.</p>
+<pre class="r"><code>ggplot() + 
+  geom_point(data = asttov, aes(x = AST, y = TOV), color = &quot;light grey&quot;) +
+  geom_point(data = asttov2021, aes(x = AST, y = TOV), color = &quot;forest green&quot;) +
+  geom_hline(yintercept = 14.88303, color = &quot;blue&quot;) +
+  geom_vline(xintercept = 23.61091, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Better Passing, Less Giveaways&quot;, 
+    subtitle = &quot;A majority of the league this season are posting above avergae assists and turnovers.&quot;, 
+    caption = &quot;Source: Sports Reference | By Nate Thomas&quot;, 
+    x = &quot;Assists&quot; , y = &quot;Turnovers&quot;
+    )  + 
+  theme_light () + 
+  theme(
+    plot.title = element_text(size = 16, face = &quot;bold&quot;),
+    axis.title = element_text(size = 9, face = &quot;bold&quot;), 
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(size = 10),
+    panel.grid.minor = element_blank())</code></pre>
+<p><img src="/2021/04/20/2021-the-year-of-offense/index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Looking at this, 17 of the 30 teams in the league this year are posting above average assist to turnover ratios. I think this just shows that teams are creating better shots as we see with shooting splits which leads to more points scored. But, it also could mean that they are turning the ball over less overall which leads to more shots and more points scored.</p>
+<p>Overall, we can see how great the offenses are this season compared to the past. A lot of this could also go with how bad the defenses are this season because of the compressed schedule and lack of practice time to work on defesnsive schemes and such. The three worst defensive ratings of all time are this season.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
