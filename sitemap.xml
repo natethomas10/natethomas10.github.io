@@ -6,6 +6,7 @@
     <lastmod>2021-04-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>/categories/</loc>
+<<<<<<< HEAD
     <lastmod>2021-04-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>/</loc>
@@ -19,6 +20,21 @@
   </url><url>
     <loc>/categories/sports/</loc>
     <lastmod>2021-04-20T00:00:00+00:00</lastmod>
+=======
+    <lastmod>2021-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/</loc>
+    <lastmod>2021-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/post/</loc>
+    <lastmod>2021-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/categories/r/</loc>
+    <lastmod>2021-04-03T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>/categories/sports/</loc>
+    <lastmod>2021-04-03T00:00:00+00:00</lastmod>
+>>>>>>> 4f9579d32129319394f4d797d3b3c5c69be62a1d
   </url><url>
     <loc>/2021/04/03/which-college-basketball-conference-was-the-best-in-2020/</loc>
     <lastmod>2021-04-03T00:00:00+00:00</lastmod>

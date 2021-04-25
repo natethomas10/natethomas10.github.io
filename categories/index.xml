@@ -6,11 +6,19 @@
     <description>Recent content in Categories on Nate Thomas&#39;s Github Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+<<<<<<< HEAD
     <lastBuildDate>Tue, 20 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>R</title>
       <link>/categories/r/</link>
       <pubDate>Tue, 20 Apr 2021 00:00:00 +0000</pubDate>
+=======
+    <lastBuildDate>Sat, 03 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>R</title>
+      <link>/categories/r/</link>
+      <pubDate>Sat, 03 Apr 2021 00:00:00 +0000</pubDate>
+>>>>>>> 4f9579d32129319394f4d797d3b3c5c69be62a1d
       
       <guid>/categories/r/</guid>
       <description></description>
@@ -19,7 +27,11 @@
     <item>
       <title>Sports</title>
       <link>/categories/sports/</link>
+<<<<<<< HEAD
       <pubDate>Tue, 20 Apr 2021 00:00:00 +0000</pubDate>
+=======
+      <pubDate>Sat, 03 Apr 2021 00:00:00 +0000</pubDate>
+>>>>>>> 4f9579d32129319394f4d797d3b3c5c69be62a1d
       
       <guid>/categories/sports/</guid>
       <description></description>

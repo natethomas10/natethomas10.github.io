@@ -6,6 +6,7 @@
     <description>Recent content in R on Nate Thomas&#39;s Github Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+<<<<<<< HEAD
     <lastBuildDate>Tue, 20 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>2021: The Year Of Offense</title>
@@ -17,6 +18,9 @@
 I first heard about how ridiculous the offense was in the first few weeks of the season listening to a few different NBA podcasts.</description>
     </item>
     
+=======
+    <lastBuildDate>Sat, 03 Apr 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
+>>>>>>> 4f9579d32129319394f4d797d3b3c5c69be62a1d
     <item>
       <title>Which college basketball conference was the best in 2020?</title>
       <link>/2021/04/03/which-college-basketball-conference-was-the-best-in-2020/</link>
